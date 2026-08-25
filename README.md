@@ -1,4 +1,4 @@
-# hana-dsh-adapter
+# hanako-dsh-adapter
 
 ## English (Overview)
 
