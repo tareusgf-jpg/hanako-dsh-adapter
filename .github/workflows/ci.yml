@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  test:
+    name: Node ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Offline tests (no real DSH required)
+        run: npm test
+
+      - name: Syntax check
+        run: npm run check
+
+# Note: `npm run smoke:real` is deliberately NOT part of CI. It exercises the
+# adapter against a REAL, locally running DeepSeek Harness (DSH) instance and
+# creates a real DSH session as a side effect — it is an operator-level smoke
+# test that must run on a machine with DSH available. All CI tests above are
+# fully offline and never touch a real DSH process.

@@ -1,0 +1,70 @@
+{
+  "manifestVersion": 1,
+  "id": "hana-dsh-adapter",
+  "name": "DSH Adapter for Hana",
+  "version": "0.3.0",
+  "description": "受控的本地 DeepSeek Harness (DSH) 执行后端适配器：仅回环地址、固定启动参数、工作区根约束，暴露 status/start/submit/inspect/cancel/overview 窄操作集与 DSH 审批闭环（监听页批准/拒绝），并提供只读「DSH 监听」页面。",
+  "minAppVersion": "0.171.3",
+  "trust": "full-access",
+  "capabilities": ["tools"],
+  "ui": {
+    "hostCapabilities": ["external.open"]
+  },
+  "contributes": {
+    "page": {
+      "title": {
+        "zh": "DSH 监听",
+        "en": "DSH Monitor"
+      },
+      "route": "/studio",
+      "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><path d=\"M4 7l4-3 4 3 4-3 4 3v13l-4-3-4 3-4-3-4 3V7z\"/><path d=\"M8 4v13M12 7v13M16 4v13\"/></svg>"
+    },
+    "configuration": {
+      "properties": {
+        "dshUrl": {
+          "type": "string",
+          "title": "DSH 地址 (loopback only)",
+          "description": "DeepSeek Harness Web profile 的本地地址。只允许 http://127.0.0.1、http://[::1] 或 http://localhost。",
+          "default": "http://127.0.0.1:3080",
+          "ui": { "control": "text" }
+        },
+        "dshExecutable": {
+          "type": "string",
+          "title": "DSH CLI 可执行文件",
+          "description": "固定的 dsh bin.js 路径；留空则自动推导默认值：$DSH_HOME（或用户主目录）/.dsh/profiles/node_modules/@deepseek-ai/dsh/lib/bin.js。启动时使用当前 Node 解释器执行，参数固定为 web --host 127.0.0.1 --port <url 端口>。",
+          "default": "",
+          "ui": { "control": "text" }
+        },
+        "dshWorkspaceRoots": {
+          "type": "array",
+          "items": { "type": "string" },
+          "title": "允许的工作区根目录",
+          "description": "任务 cwd 必须位于这些目录之一（绝对路径）。留空则自动回退到宿主进程的当前工作目录（process.cwd()）并记录警告；建议显式配置以收紧边界。",
+          "default": [],
+          "ui": { "control": "list" }
+        },
+        "dshAutoStart": {
+          "type": "boolean",
+          "title": "自动启动 DSH",
+          "description": "DSH 不可达时是否自动启动本地 DSH 进程。",
+          "default": true,
+          "ui": { "control": "switch" }
+        },
+        "dshApprovalNotify": {
+          "type": "boolean",
+          "title": "审批推送通知",
+          "description": "发现新审批或审批落地时，是否通过 session:send 向关联会话推送摘要/反馈（总开关）。关闭后审批记录与监听页仍然工作，只是不再向会话发消息。",
+          "default": true,
+          "ui": { "control": "switch" }
+        },
+        "dshApprovalTimeoutMs": {
+          "type": "number",
+          "title": "审批等待超时（毫秒）",
+          "description": "0（默认）= 未决审批永久等待，直到用户在监听页处理。大于 0 时，超过该时长未应答的审批会被本地标记为超时并推送反馈；绝不自动批准或自动拒绝，DSH 侧请求仍保持挂起（可到 DSH Web 界面处理）。",
+          "default": 0,
+          "ui": { "control": "number" }
+        }
+      }
+    }
+  }
+}

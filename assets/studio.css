@@ -1,0 +1,149 @@
+/* hana-dsh-adapter "DSH 监听" — dark observation monitor, cards only. */
+:root {
+  color-scheme: dark;
+  --bg: #101418;
+  --panel: #171d24;
+  --panel-2: #1d242d;
+  --border: #2a333f;
+  --text: #dbe3ec;
+  --muted: #8b98a7;
+  --accent: #4c8dff;
+  --ok: #34c98e;
+  --warn: #e5b567;
+  --err: #e5636b;
+  --mono: "Cascadia Code", Consolas, "Courier New", monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.55 system-ui, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+#root { max-width: 860px; margin: 0 auto; padding: 18px 14px 64px; }
+
+h1 { font-size: 18px; margin: 0 0 2px; }
+h2 { font-size: 14px; margin: 0 0 10px; color: var(--muted); font-weight: 600; }
+.sub { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.page-head { margin-bottom: 12px; }
+.head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+  margin-top: 8px;
+}
+.switch-label { color: var(--muted); font-size: 13px; display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.switch-label input { accent-color: var(--accent); width: auto; }
+
+/* ── Status grid ─────────────────────────────────────────────────────────── */
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px 18px;
+}
+.kv { color: var(--muted); font-size: 13px; }
+.kv b { color: var(--text); font-weight: 600; }
+.kv .mono { display: block; word-break: break-all; }
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-block; padding: 1px 8px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.badge.ok { color: var(--ok); border-color: var(--ok); }
+.badge.warn { color: var(--warn); border-color: var(--warn); }
+.badge.err { color: var(--err); border-color: var(--err); }
+.badge.muted { color: var(--muted); }
+
+/* ── Task list (cards, no tables) ────────────────────────────────────────── */
+.task-list { list-style: none; margin: 0; padding: 0; }
+.task-row {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+.task-row.empty { color: var(--muted); text-align: center; }
+.task-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.short-id { color: var(--accent); font-size: 12px; }
+.task-meta { color: var(--muted); font-size: 12px; margin-top: 4px; word-break: break-all; }
+.task-result {
+  margin-top: 5px; font-size: 13px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.task-lasterr {
+  margin-top: 4px; font-size: 12px; color: var(--err);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ── Buttons & messages ──────────────────────────────────────────────────── */
+button {
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 7px;
+  padding: 6px 12px; font-size: 13px; cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.msg { padding: 8px 10px; border-radius: 7px; margin: 8px 0; font-size: 13px; }
+.msg.err { background: rgba(229, 99, 107, 0.12); border: 1px solid rgba(229, 99, 107, 0.4); }
+
+.muted { color: var(--muted); }
+.mono { font-family: var(--mono); font-size: 12px; }
+.hidden { display: none; }
+
+/* ── Approval section (Phase 1) ───────────────────────────────────────────── */
+.approval-actions { display: flex; gap: 8px; margin-top: 8px; }
+.approval-btn.allow { color: var(--ok); border-color: var(--ok); }
+.approval-btn.allow:hover { background: rgba(52, 201, 142, 0.12); }
+.approval-btn.reject { color: var(--err); border-color: var(--err); }
+.approval-btn.reject:hover { background: rgba(229, 99, 107, 0.12); }
+
+/* ── Toast (minimal @hana/plugin-sdk toast.show equivalent) ──────────────── */
+.toast-root {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(360px, calc(100vw - 28px));
+}
+.toast {
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  word-break: break-word;
+}
+.toast.success { color: var(--ok); border-color: var(--ok); }
+.toast.warning { color: var(--warn); border-color: var(--warn); }
+.toast.error { color: var(--err); border-color: var(--err); }
+.toast.info { color: var(--accent); border-color: var(--accent); }
+
+/* ── Narrow screens ──────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  #root { padding: 12px 8px 48px; }
+  .status-grid { grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+  .head-actions { gap: 6px 10px; }
+}

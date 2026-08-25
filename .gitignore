@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Real-DSH smoke artifacts (created by npm run smoke:real)
+.smoke-real-*/
+
+# TaskStore atomic-write leftovers
+*.tmp-*
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
