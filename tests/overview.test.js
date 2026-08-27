@@ -23,7 +23,11 @@ async function makeService(t, { rpc = null } = {}) {
   const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "dsh-overview-"));
   t.after(() => fs.rm(dataDir, { recursive: true, force: true }).catch(() => {}));
   const policy = new WorkspacePolicy({ roots: [dataDir] });
-  const store = new TaskStore({ dataDir });
+  // Monotonic store clock: consecutive creates must never share a millisecond,
+  // or the newest-first ordering assertion becomes flaky (stable sort keeps
+  // insertion order for equal createdAt). The service keeps its fixed clock.
+  let storeClock = 1_700_000_000_000;
+  const store = new TaskStore({ dataDir, now: () => storeClock++ });
   await store.init();
   const service = new DshAdapterService({
     rpc: rpc ?? createFakeRpc(),

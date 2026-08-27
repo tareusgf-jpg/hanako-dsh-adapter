@@ -84,7 +84,8 @@ test("corrupt tasks.json does not crash init", async (t) => {
 
 test("list orders by createdAt descending and returns clones", async (t) => {
   const dir = await tempDataDir(t);
-  const store = new TaskStore({ dataDir: dir });
+  let clock = 1_700_000_000_000;
+  const store = new TaskStore({ dataDir: dir, now: () => clock++ });
   await store.init();
   const a = await store.create({ sessionId: "a", cwd: "D:\\", agentPreset: "p", promptSummary: "a", promptLength: 1 });
   const b = await store.create({ sessionId: "b", cwd: "D:\\", agentPreset: "p", promptSummary: "b", promptLength: 1 });
