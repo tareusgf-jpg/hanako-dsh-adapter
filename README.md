@@ -1,4 +1,4 @@
-# hana-dsh-adapter
+# hanako-dsh-adapter
 
 ## English (Overview)
 
@@ -46,7 +46,7 @@ Runtime requires Node.js >= 20.
 
 ---
 
-# hana-dsh-adapter（中文）
+# hanako-dsh-adapter（中文）
 
 HanaAgent 社区插件：把本地 DeepSeek Harness（DSH, `@deepseek-ai/dsh`）作为**受控的本地编码执行后端**暴露给 Hana，而不重新实现 DSH，也不把 DSH 的完整 Web 控制面代理给插件 UI。
 
