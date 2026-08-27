@@ -167,11 +167,13 @@ if (verify) {
 }
 
 // Extra integrity: a second independent reader (system unzip, when present)
-// must list the same entry count.
+// must list the same entry count. unzip -l prints a final summary line like
+// "   208206  26 files" — match the number right before "files"/"file" at
+// line end, NOT the leading byte-count column.
 try {
   const listing = execFileSync("unzip", ["-l", zipPath], { encoding: "utf8", timeout: 30000 });
-  const listed = (listing.match(/\n\s+\d+ files?/)?.[0]?.match(/\d+/) ?? ["0"])[0];
-  if (Number(listed) !== entries.length) {
+  const listed = Number(listing.match(/(\d+)\s+files?$/m)?.[1] ?? "0");
+  if (listed !== entries.length) {
     console.error(`[pack] FAILED: unzip -l disagrees (${listed} vs ${entries.length})`);
     process.exit(1);
   }
