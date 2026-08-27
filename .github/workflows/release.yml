@@ -1,0 +1,44 @@
+name: Release
+
+# Tag-triggered release pipeline: run tests, build the installable zip,
+# attach it to the GitHub Release for the tag.
+#
+# Usage: git tag v0.4.0 && git push origin v0.4.0
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Offline tests
+        run: npm test
+
+      - name: Syntax check
+        run: npm run check
+
+      - name: Build release zip
+        run: node scripts/pack.mjs
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/hana-dsh-adapter-v*.zip
+          generate_release_notes: true
+          prerelease: false

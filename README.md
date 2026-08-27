@@ -52,7 +52,7 @@ HanaAgent 社区插件：把本地 DeepSeek Harness（DSH, `@deepseek-ai/dsh`）
 
 这是一个**适配器**，不是第二个 harness。DSH 始终是会话与输出的唯一事实源；本插件只保存适配任务元数据、展示缓存与审批记录。
 
-版本：**0.3.0**（Phase 0：可恢复提交链 + 可靠任务状态机 + 故障恢复 + 正确终态判定；Phase 1：DSH 审批闭环）。
+版本：**0.4.0**（Phase 0：可恢复提交链 + 可靠任务状态机 + 故障恢复 + 正确终态判定；Phase 1：DSH 审批闭环；0.4：真机验证 + diagnose + 发行管道 + 结果摘要）。
 
 ## 安全警告（必读）
 
@@ -70,6 +70,58 @@ DSH 0.1.0-rc.6 的 Web API 是本地代码执行控制面，**没有认证层**�
 10. **经验教训（给 DSH 插件开发者）**：DSH 插件加载器对 Typert Remote 的 namespace/service **命名冲突会拒绝加载**（例如 `dsh-backup` 的 `backupPanel` 冲突案例）。写 DSH 插件时应避免 service 与 namespace 同名，否则插件可能无法被宿主加载——这是插件生命周期层面的硬性约束，不是运行时错误，排查时要先检查命名。
 
 > 任何能访问本插件管理页面/工具的人，都等于能提交本地代码执行任务，也能批准/拒绝 DSH 提权请求。请只在本机回环环境中启用 `full-access`。
+
+## 效果示例
+
+**派活 → 执行 → 结果（带摘要）**：
+
+```
+你：run-task：在 D:\Agent\OH-Works\demo 下写一个单测并跑通
+
+插件返回：
+{
+  "task": { "id": "task_ab12…", "status": "done", "sessionId": "session-…" },
+  "waitOutcome": "completed",
+  "summary": {
+    "status": "done",
+    "durationMs": 45230,
+    "cwd": "D:\\Agent\\OH-Works\\demo",   // 交付物位置
+    "resultTextLength": 1840,
+    "approvals": { "total": 1, "pending": 0, "resolved": 1 }
+  },
+  "summaryText": "状态=done · 耗时=45s · 工作目录=D:\\Agent\\OH-Works\\demo · 结果=1840 字符 · 审批=1（待处理 0）"
+}
+```
+
+**审批闭环（DSH 请求提权时）**：
+
+```
+DSH 任务试图写工作区外文件 → 沙箱拒绝 → 模型带 sandbox_permissions 提权重试
+→ events.mux 广播 approval/requested → 插件捕获并推送到会话：
+
+  [DSH 审批] 任务 task_ab12… 请求提权：write （理由摘要）—— 请在 DSH 监听页批准或拒绝
+
+→ 在「DSH 监听」页点「批准一次」→ DSH 继续执行 → 任务完成
+（用户在 DSH Web UI 直接批准也行——双通道竞态，谁先应答谁生效，插件不重复应答）
+```
+
+**连不上 DSH 时**：
+
+```
+你：diagnose
+插件返回：
+{
+  "verdict": "broken",
+  "checks": [
+    { "check": "node", "status": "ok", "detail": "v24.15.0 @ C:\\…", "fix": null },
+    { "check": "executable", "status": "ok", "detail": "…bin.js（0.1.1-rc.2）", "fix": null },
+    { "check": "connectivity", "status": "fail",
+      "detail": "不可达 http://127.0.0.1:3080：ECONNREFUSED",
+      "fix": "没有外部 DSH 在监听。确认 DSH 已安装，然后调用 start，或终端运行：dsh web --host 127.0.0.1 --port 3080" },
+    { "check": "workspace", "status": "ok", "detail": "D:\\Agent\\OH-Works", "fix": null }
+  ]
+}
+```
 
 ## 功能（Phase 0）
 

@@ -1,6 +1,6 @@
 {
   "name": "hana-dsh-adapter",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "description": "HanaAgent plugin: controlled local DeepSeek Harness (DSH) execution backend adapter.",
@@ -9,7 +9,8 @@
     "test": "node --test tests/*.test.js",
     "check": "node scripts/check-syntax.mjs",
     "smoke": "node scripts/smoke-offline.mjs",
-    "smoke:real": "node scripts/smoke-real.mjs"
+    "smoke:real": "node scripts/smoke-real.mjs",
+    "smoke:approval:real": "node scripts/smoke-approval-real.mjs"
   },
   "engines": {
     "node": ">=20"

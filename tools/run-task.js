@@ -1,3 +1,5 @@
+import { buildTaskSummary, formatTaskSummary } from "../lib/task-summary.js";
+
 // hana-dsh-adapter tool: run-task.
 export const name = "run-task";
 export const description =
@@ -37,8 +39,18 @@ export async function execute(input, ctx) {
     // autoStart intentionally NOT passed: undefined falls back to the plugin
     // configuration (dshAutoStart), so the tool never overrides operator policy.
   });
+  const summary = buildTaskSummary(runtime, result.task);
   return {
-    content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    content: [
+      {
+        type: "text",
+        text: JSON.stringify(
+          { ...result, summary, summaryText: formatTaskSummary(summary) },
+          null,
+          2,
+        ),
+      },
+    ],
   };
 }
 

@@ -1,3 +1,5 @@
+import { buildTaskSummary, formatTaskSummary } from "../lib/task-summary.js";
+
 // hana-dsh-adapter tool: get-task.
 export const name = "get-task";
 export const description =
@@ -24,8 +26,18 @@ export async function execute(input, ctx) {
   const result = await runtime.service.inspect(input.taskId, {
     includeRaw: input.includeRaw === true,
   });
+  const summary = buildTaskSummary(runtime, result.task);
   return {
-    content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    content: [
+      {
+        type: "text",
+        text: JSON.stringify(
+          { ...result, summary, summaryText: formatTaskSummary(summary) },
+          null,
+          2,
+        ),
+      },
+    ],
   };
 }
 
